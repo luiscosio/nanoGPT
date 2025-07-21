@@ -318,7 +318,36 @@ def compare_datasets(file1, file2, sample_length=200):
             tokens = data[start_pos:end_pos].tolist()
             text = decode_tokens(tokens, encoding_type, meta)
             
-            print(f"Sample of {sample_length} tokens decoded:")
+            # Show tokens and decoded text
+            print(f"\nTokenization Example (showing first 50 tokens):")
+            print("-" * 70)
+            
+            # Show raw tokens
+            display_tokens = tokens[:50]
+            print(f"Raw tokens: {display_tokens}")
+            
+            # Show token-by-token decoding for first 20 tokens
+            print(f"\nToken-by-token decoding (first 20):")
+            for i, token in enumerate(tokens[:20]):
+                if encoding_type == 'char':
+                    if meta and 'itos' in meta and token in meta['itos']:
+                        char = meta['itos'][token]
+                        print(f"  Token {token:3d} → '{char}'")
+                    else:
+                        print(f"  Token {token:3d} → [Unknown]")
+                else:  # BPE
+                    if 0 <= token < 50256:
+                        try:
+                            decoded = tiktoken.get_encoding("gpt2").decode([token])
+                            # Escape special characters for display
+                            display = decoded.replace('\n', '\\n').replace('\t', '\\t')
+                            print(f"  Token {token:5d} → '{display}'")
+                        except:
+                            print(f"  Token {token:5d} → [Error]")
+                    else:
+                        print(f"  Token {token:5d} → [Invalid]")
+            
+            print(f"\nFull decoded text ({len(tokens)} tokens):")
             print("-" * 40)
             print(text[:500] + "..." if len(text) > 500 else text)
             print("-" * 40)
